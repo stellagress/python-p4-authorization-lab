@@ -87,12 +87,28 @@ class CheckSession(Resource):
 class MemberOnlyIndex(Resource):
     
     def get(self):
-        pass
+        if not session['user_id']:
+            return {'error' : 'Unauthorized'}, 401
+        else:
+            articles = [article.to_dict() for article in Article.query.all() if article.is_member_only == True]
+            return articles, 200
+        
+            # articles = Article.query.all()
+            # return [article.to_dict() for article in articles]
 
 class MemberOnlyArticle(Resource):
     
     def get(self, id):
-        pass
+        if not session['user_id']:
+            return {'error' : 'Unauthorized'}, 401
+        else:
+            article = Article.query.filter(Article.id == id).first()
+            return article.to_dict(), 200
+
+
+# If a user is not signed in, the get() methods in each view should return a status code of 401 unauthorized, along with an error message.
+# If the user is signed in, the get() methods in each view should return the JSON data for the members-only articles and the members-only 
+# article by ID, respectively.
 
 api.add_resource(ClearSession, '/clear', endpoint='clear')
 api.add_resource(IndexArticle, '/articles', endpoint='article_list')
